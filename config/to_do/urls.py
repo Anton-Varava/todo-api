@@ -8,6 +8,7 @@ urlpatterns = [
     path('board-list', views.board_list, name='board-list'),
     path('board-delete', views.delete_board, name='board-delete'),
     path('board-change', views.change_name_board, name='board-change'),
+    path('board/<str:pk>', views.get_board_detail, name='board-detail'),
     path('api-token-auth', obtain_auth_token, name='api-token-auth'),
     path('todo-create', views.create_todo_item, name='todo-create'),
     path('todo-list', views.list_todo, name='todo-list'),

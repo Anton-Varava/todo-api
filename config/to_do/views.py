@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
 from .models import TodoItem, Board
-from .serializers import TodoItemSerializer, BoardSerializer, UserSerializer
+from .serializers import TodoItemSerializer, BoardDetailSerializer, UserSerializer, BoardListSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import permissions
@@ -28,7 +28,7 @@ def create_user(request):
 def create_board(request):
     data = request.data
     data['user'] = request.user.id
-    serializer = BoardSerializer(data=request.data)
+    serializer = BoardDetailSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors)
     serializer.save()
@@ -40,7 +40,15 @@ def create_board(request):
 @permission_classes([permissions.IsAuthenticated])
 def board_list(request):
     boards = Board.objects.filter(user=request.user)
-    serializer = BoardSerializer(boards, many=True)
+    serializer = BoardListSerializer(boards, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_board_detail(request, pk):
+    board = get_object_or_404(Board, id=pk)
+    serializer = BoardDetailSerializer(board)
     return Response(serializer.data)
 
 
@@ -77,7 +85,7 @@ def change_name_board(request):
     if not is_owner(request.user, board):
         return Response('You don\'t have permission to change this board')
     new_data = {'name': new_name}
-    serializer = BoardSerializer(board, data=new_data, partial=True)
+    serializer = BoardDetailSerializer(board, data=new_data, partial=True)
     if not serializer.is_valid():
         return Response(serializer.errors)
     serializer.save()
@@ -137,7 +145,7 @@ def edit_todo(request, pk):
     if not is_owner(request.user, board):
         return Response('You don\'t have permission to this board')
 
-    serializer = BoardSerializer(board, data=new_data, partial=True)
+    serializer = BoardDetailSerializer(board, data=new_data, partial=True)
     serializer = TodoItemSerializer(todo, data=new_data, partial=True)
     if not serializer.is_valid():
         return Response(serializer.errors)
@@ -166,7 +174,7 @@ def delete_todo(request):
 @permission_classes([permissions.IsAdminUser])
 def board_list_all(request):
     boards_all = Board.objects.all()
-    serializer = BoardSerializer(boards_all, many=True)
+    serializer = BoardDetailSerializer(boards_all, many=True)
     return Response(serializer.data)
 
 
