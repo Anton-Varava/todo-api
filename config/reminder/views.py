@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, get_list_or_404
-from to_do.models import TodoItem
-from .serializers import ReminderItemSerializer
+from .models import ReminderItem
+from to_do.models import TodoItem, Board
+from .serializers import ReminderItemSerializer, ReminderListSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import permissions
@@ -19,3 +20,22 @@ def create_reminder(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def list_user_reminders(request):
+    user_boards = get_list_or_404(Board, user=request.user)
+    user_todos = get_list_or_404(TodoItem, board__in=user_boards)
+    user_reminders = get_list_or_404(ReminderItem, todo__in=user_todos)
+
+    serializer = ReminderListSerializer(user_reminders, many=True)
+    t = serializer.data
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def delete_reminder(request, pk):
+    reminder = get_object_or_404(ReminderItem, id=pk)
+    todo_name = reminder.todo.title
+    reminder.delete()
+    return Response(f'Reminder for "{todo_name}" delete successful')

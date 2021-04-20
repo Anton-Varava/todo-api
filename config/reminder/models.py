@@ -11,7 +11,6 @@ class ReminderItem(models.Model):
     created_at = models.DateTimeField(verbose_name='Created', auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name='Updated', auto_now=True)
 
-
     def __str__(self):
-        return f"Todo '{self.todo.name}' remind!"
+        return f"Todo '{self.todo}' remind!"
 

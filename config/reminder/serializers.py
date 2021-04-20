@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import ReminderItem, TodoItem
-from django.shortcuts import get_object_or_404
+from .models import ReminderItem
 
 
 class ReminderItemSerializer(serializers.ModelSerializer):
@@ -18,4 +17,14 @@ class ReminderItemSerializer(serializers.ModelSerializer):
         )
         reminder.save()
         return reminder
+
+
+class ReminderListSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    todo = serializers.CharField()
+    text = serializers.CharField()
+    email = serializers.EmailField()
+    # class Meta:
+    #     model = ReminderItem
+    #     fields = ('id', 'text', 'todo', 'reminder_date')
 
