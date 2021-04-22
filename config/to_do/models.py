@@ -13,62 +13,11 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-class UserManager(BaseUserManager):
-    def _create_user(self, username, email, password):
-        if not email:
-            raise ValueError('Users must have an email address')
-        if not username:
-            raise ValueError('Users must have an username')
-        if not password:
-            raise ValueError('Users must have a password')
-
-        user = self.model(
-            email=self.normalize_email(email),
-            username=self.model.normalize_username(username)
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_user(self, username, email, password):
-        return self._create_user(username, email, password)
-
-    def create_superuser(self, username, email, password):
-        user = self._create_user(username, email, password)
-        user.is_admin = True
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
-
-
 class User(AbstractUser):
-    objects = UserManager()
+    email = models.EmailField(blank=False)
 
-
-# class User(User):
-#     email = models.EmailField(verbose_name='email', max_length=60, unique=True)
-#
-#     created_at = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
-#     last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
-#     is_admin = models.BooleanField(default=False)
-#     is_staff = models.BooleanField(default=False)
-#     is_active = models.BooleanField(default=True)
-#     is_superuser = models.BooleanField(default=False)
-#
-#     USERNAME_FIELD = 'username'
-#     REQUIRED_FIELDS = ['email']
-#
-#     objects = UserManager()
-#
-#     def __str__(self):
-#         return self.username
-#
-#     def has_perm(self, permission, obj=None):
-#         return self.is_admin
-#
-#     def has_module_perms(self, app_label):
-#         return True
+    def __str__(self):
+        return f'User "{self.username}, email - {self.email}"'
 
 
 class Board(models.Model):
